@@ -1,0 +1,17 @@
+{
+  "name": "smartclip",
+  "version": "0.1.0",
+  "main": "smartclip/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Joris Roovers",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^1.3.4"
+  },
+  "dependencies": {
+    "electron": "^1.3.4",
+    "electron-clipboard-watcher": "^1.0.1"
+  }
+}
