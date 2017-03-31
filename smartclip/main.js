@@ -1,5 +1,6 @@
 const electron = require('electron');
 const app = electron.app;
+const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -7,11 +8,13 @@ const BrowserWindow = electron.BrowserWindow;
 let mainWindow;
 
 function createWindow() {
-    console.log("Creating window!");
 
+    mainWindow = new BrowserWindow({width: 300, height: 300});
 
-    mainWindow = new BrowserWindow({width: 1000, height: 800});
-    // mainWindow.loadURL(`file://${__dirname}/views/index.html`);
+    const DEBUG_MODE = process.env.SMARTCLIP_DEBUG == '1' || false;
+
+    mainWindow.loadURL('http://localhost:8080');
+    // mainWindow.loadURL(`file://${__dirname}/../dist/index.html`);
 
     // We can access settings here like this:
     // const storage = require('electron-json-storage');
@@ -64,11 +67,16 @@ app.on('activate', function () {
     }
 });
 
+// events send by client
+ipcMain.on('toggle-dev-tools', function (event, arg) {
+    mainWindow.webContents.toggleDevTools();
+});
+
 
 const clipboardWatcher = require('electron-clipboard-watcher')
 clipboardWatcher({
     // (optional) delay in ms between polls
-    watchDelay: 1000,
+    watchDelay: 500,
     // handler for when image data is copied into the clipboard
     onImageChange: function (nativeImage) {
         console.log("Image copied");

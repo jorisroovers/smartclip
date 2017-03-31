@@ -4,6 +4,27 @@ Smart clipboard app for macOS written in NodeJS using electron. Focus on develop
 
 I have some good ideas, but it's very early stages at this point! Using this opportunity to learn ReactJS along the way :-)
 
+# Getting Started #
+
+```bash
+# Install dependencies
+npm install
+# For development
+# In one terminal run:
+npm run dev
+# In another terminal
+npm start .
+```
+
+**Production**
+```bash
+# Production build:
+node_modules/.bin/webpack
+#  Run
+npm start .
+```
+
+
 # TODO #
 - Storing clips in encrypted file
     - Generate encryption key on first install (this is for later)
