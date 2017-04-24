@@ -1,6 +1,6 @@
 # Smartclip #
 
-Smart clipboard app for macOS written in NodeJS using electron. Focus on developer and power-user convenience.
+Smart clipboard app for macOS written in NodeJS using electron, Ecmascript 6 and React. Focus on developer and power-user convenience.
 
 I have some good ideas, but it's very early stages at this point! Using this opportunity to learn ReactJS along the way :-)
 
@@ -11,9 +11,9 @@ I have some good ideas, but it's very early stages at this point! Using this opp
 npm install
 # For development
 # In one terminal run:
-npm run dev
+npm run webpack-dev-server
 # In another terminal
-npm start .
+npm run dev
 ```
 
 **Production**

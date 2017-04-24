@@ -4,7 +4,8 @@
   "main": "smartclip/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "SMARTCLIP_DEV=1 webpack-dev-server --inline --hot"
+    "dev": "SMARTCLIP_DEV=1 electron .",
+    "webpack-dev-server": "webpack-dev-server --inline --hot"
   },
   "author": "Joris Roovers",
   "license": "MIT",
