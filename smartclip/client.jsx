@@ -6,31 +6,41 @@ const ReactDOM = require("react-dom"); //.ReactDOM;
 
 ipcRenderer.send('register-for-clip-updates', true);
 
+import css from './css/styles.css';
 
-class Clipboard extends React.Component {
+class ClipboardView extends React.Component {
+
     constructor(props) {
         super(props);
-        this.state = {greeting: "foo"}
-    }
-
-    setClipboard(item) {
-        this.setState({greeting: item});
     }
 
     render() {
-        return <h1>Hello, {this.props.name}, {this.state.greeting}</h1>;
+        let clipViews = [];
+        for (let i = 0; i < this.props.clips.length; i++) {
+            clipViews.push(<ClipView key={i} clip={this.props.clips[i]} />);
+        }
+        return <div className="clipboard">{clipViews}</div>;
     }
 }
 
-ReactDOM.render(
-    <Clipboard name="joris"/>,
-    document.getElementById('root')
-);
+class ClipView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { greeting: "foo" }
+    }
 
-ipcRenderer.on('clip-added', function (event, args) {
-    console.log("args", args[0]);
+    setClipboard(item) {
+        this.setState({ greeting: item });
+    }
+
+    render() {
+        return <div className="clip">{this.props.clip.text}</div>;
+    }
+}
+
+ipcRenderer.on('clip-added', function (event, clips) {
     ReactDOM.render(
-        <Clipboard name={args[0]}/>,
+        <ClipboardView clips={clips} />,
         document.getElementById('root')
     );
 });

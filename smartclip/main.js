@@ -28,6 +28,8 @@ function createWindow() {
     console.log("DEV MODE", DEV_MODE);
     if (DEV_MODE) {
         mainWindow.loadURL('http://localhost:8080');
+        mainWindow.webContents.toggleDevTools();
+        mainWindow.setSize(700, 500);
     } else {
         mainWindow.loadURL(`file://${__dirname}/../dist/index.html`);
     }
@@ -79,7 +81,10 @@ function getWindowPosition() {
     // Position window 4 pixels vertically below the tray icon
     const y = Math.round(trayBounds.y + trayBounds.height + 3)
 
-    return {x: x, y: y}
+    return {
+        x: x,
+        y: y
+    }
 };
 
 
@@ -131,18 +136,15 @@ ipcMain.on('toggle-dev-tools', function (event, arg) {
 });
 
 let clipUpdateSender = null;
+let clipboard = require('./clipboard');
+let smartclipboard = new clipboard.SmartClipBoard();
 ipcMain.on('register-for-clip-updates', function (event, arg) {
     console.log("registering for clip updates");
     clipUpdateSender = event.sender;
+    clipUpdateSender.send("clip-added", smartclipboard.clips);
 });
 
-
-let clipboard = require('./clipboard');
-let smartclipboard = new clipboard.SmartClipBoard();
 smartclipboard.addClipWatcher(function (clip, clips) {
     console.log("clip logged", clips);
     clipUpdateSender.send("clip-added", clips);
 });
-
-
-

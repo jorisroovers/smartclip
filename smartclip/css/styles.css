@@ -1,0 +1,10 @@
+.clip {
+    border-bottom: 1px solid #ccc;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 2px;
+}
+
+.clip:hover {
+    background: #ddeaff;
+    cursor: pointer;
+}

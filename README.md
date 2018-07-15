@@ -33,3 +33,4 @@ npm start .
 - convert from json to e.g. yaml
 - trim whitespace
 - base64, md5, encode, etc
+- markdown to MS Office markup

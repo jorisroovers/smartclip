@@ -1,15 +1,28 @@
 const clipboardWatcher = require('electron-clipboard-watcher')
 
 class Clip {
-    constructor(clip, sticky) {
-        this.clip = clip;
+    constructor(clip, sticky = false) {
         this.sticky = sticky;
+    }
+}
+
+class TextClip extends Clip {
+    constructor(text, sticky = false) {
+        super(sticky);
+        this.text = text;
+    }
+}
+
+class ImageClip extends Clip {
+    constructor(image, sticky = false) {
+        super(sticky);
+        this.image = image;
     }
 }
 
 class SmartClipBoard {
 
-    constructor(clipThreshold = 3) {
+    constructor(clipThreshold = 25) {
         this.clips = [];
         this.clipThreshold = clipThreshold;
         this.watchers = [];
@@ -17,12 +30,11 @@ class SmartClipBoard {
         clipboardWatcher({
             watchDelay: 500,
             onImageChange: function (nativeImage) {
-                console.log("Image copied");
-                console.log(nativeImage);
+                self.addClip(new ImageClip(nativeImage));
 
             },
             onTextChange: function (text) {
-                self.addClip(text)
+                self.addClip(new TextClip(text));
             }
         });
     }
