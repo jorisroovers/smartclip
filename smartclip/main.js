@@ -1,8 +1,4 @@
-const electron = require('electron');
-const app = electron.app;
-const ipcMain = electron.ipcMain;
-const BrowserWindow = electron.BrowserWindow;
-const Tray = electron.Tray;
+const { app, ipcMain, BrowserWindow, Tray, clipboard } = require('electron')
 const path = require('path')
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -11,6 +7,17 @@ let mainWindow;
 let tray;
 
 const imagesDir = path.join(__dirname, 'images');
+
+let SETTINGS = {
+    "ui": {
+        "clips": {
+            "display": {
+                "max-length": 50
+            },
+        },
+        "hide-on-copy": true
+    }
+};
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -54,22 +61,25 @@ function createTray() {
     tray = new Tray(path.join(imagesDir, 'tray16x16.png'));
     // we have some of this going on:
     // http://stackoverflow.com/questions/38193739/how-to-make-electron-tray-click-events-working-reliably
+    tray.setIgnoreDoubleClickEvents(true);
     tray.on('click', function (event) {
-        toggleWindow();
-    });
-    tray.on('double-click', function (event) {
+        console.log("TRAY CLICKED");
         toggleWindow();
     });
 }
 
 function toggleWindow() {
-    if (mainWindow.isVisible()) {
-        mainWindow.hide();
-    } else {
-        showWindow();
-    }
-}
+    showWindow();
+    console.log(mainWindow);
 
+    // if (mainWindow.isVisible()) {
+    //     console.log("isVisible");
+    //     mainWindow.hide();
+    // } else {
+    //     console.log("showWindow");
+    //     showWindow();
+    // }
+}
 
 function getWindowPosition() {
     const windowBounds = mainWindow.getBounds()
@@ -131,20 +141,48 @@ app.on('activate', function () {
 });
 
 // events send by client
+
+
+
+ipcMain.on('hide-window', function (event, arg) {
+    mainWindow.hide();
+});
+
 ipcMain.on('toggle-dev-tools', function (event, arg) {
     mainWindow.webContents.toggleDevTools();
 });
 
+ipcMain.on('copy-clip', function (event, clipIndex) {
+    console.log(clipIndex);
+    let clip = smartclipboard.clips[clipIndex];
+    smartclipboard.ignoreNext = true;
+    if (clip.type == "text") {
+        clipboard.writeText(clip.text);
+    } else if (clip.type == "image") {
+        clipboard.writeImage(clip.image);
+    }
+});
+
+ipcMain.on('clear-clips', function (event, arg) {
+    smartclipboard.clear();
+    clipUpdateSender.send("clips-update", smartclipboard.clips);
+});
+
+clipboard.writeText('Example String')
+
 let clipUpdateSender = null;
-let clipboard = require('./clipboard');
-let smartclipboard = new clipboard.SmartClipBoard();
-ipcMain.on('register-for-clip-updates', function (event, arg) {
-    console.log("registering for clip updates");
+let clipboardBackend = require('./clipboard');
+let smartclipboard = new clipboardBackend.SmartClipBoard();
+
+ipcMain.on('init', function (event, arg) {
+    console.log("Init server-side");
     clipUpdateSender = event.sender;
-    clipUpdateSender.send("clip-added", smartclipboard.clips);
+    clipUpdateSender.send("init", SETTINGS);
+    clipUpdateSender.send("clips-update", smartclipboard.clips);
+    mainWindow.hide();
 });
 
 smartclipboard.addClipWatcher(function (clip, clips) {
     console.log("clip logged", clips);
-    clipUpdateSender.send("clip-added", clips);
+    clipUpdateSender.send("clips-update", smartclipboard.clips);
 });

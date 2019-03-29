@@ -34,3 +34,5 @@ npm start .
 - trim whitespace
 - base64, md5, encode, etc
 - markdown to MS Office markup
+- Replace newlines in clip representation with newline symbols
+- Make things configurable
