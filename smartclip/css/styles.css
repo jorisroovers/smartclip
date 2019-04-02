@@ -1,4 +1,10 @@
+body {
+    font-family: "San Francisco", Arial;
+    font-size: 15px;
+}
+
 .clip {
+    position: relative;
     border-bottom: 1px solid #ccc;
     font-family: Arial, Helvetica, sans-serif;
     padding: 2px;
@@ -7,4 +13,22 @@
 .clip:hover {
     background: #ddeaff;
     cursor: pointer;
+}
+
+.clip-action {
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.clip-action:hover {
+    background: #aaa;
+    cursor: pointer;
+}
+
+.clip-actions {
+    position: absolute;
+    right: 0px;
+    top: 0px;
 }

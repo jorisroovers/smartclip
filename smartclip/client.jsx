@@ -1,4 +1,8 @@
 'use strict';
+import css from './css/styles.css';
+import './fonts/materialdesignicons-webfont.woff2';
+import './css/materialdesignicons.min.css';
+
 const ipcRenderer = window.require("electron").ipcRenderer;
 
 const React = require("react");
@@ -13,8 +17,6 @@ ipcRenderer.on('init', function (event, settings) {
     console.log(settings);
 });
 
-import css from './css/styles.css';
-
 class ClipboardView extends React.Component {
 
     constructor(props) {
@@ -27,7 +29,7 @@ class ClipboardView extends React.Component {
     render() {
         let clipViews = [];
         for (let i = 0; i < this.props.clips.length; i++) {
-            clipViews.push(<ClipView key={i} clipIndex={i} clip={this.props.clips[i]} />);
+            clipViews.push(<ClipView key={this.props.clips[i].uuid} clipIndex={i} clip={this.props.clips[i]} />);
         }
         return <div className="clipboard">
             {clipViews}
@@ -55,13 +57,7 @@ class ClipboardView extends React.Component {
 class ClipView extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { greeting: "foo" }
         this.activateClip = this.activateClip.bind(this);
-        console.log(this.props);
-    }
-
-    setClipboard(item) {
-        this.setState({ greeting: item });
     }
 
     activateClip() {
@@ -73,10 +69,20 @@ class ClipView extends React.Component {
 
     render() {
         let clipRepresentation = "";
+        let clipActions = [];
+
+        for (let actionType in this.props.clip.actions) {
+            let action = this.props.clip.actions[actionType];
+            console.log(action);
+            clipActions.push(<ClipAction key={action.uuid} action={action} clipIndex={this.props.clipIndex} />)
+        }
+
         if (this.props.clip.type == "text") {
             clipRepresentation = this.props.clip.text;
-            if (clipRepresentation.length > 53) {
-                clipRepresentation = clipRepresentation.substr(0, 50) + "...";
+            // clipRepresentation = clipRepresentation.replace("\n", SETTINGS.ui['newline-representation'])
+
+            if (clipRepresentation.length > (SETTINGS['ui']['clips']['display']['max-length'] + 3)) {
+                clipRepresentation = clipRepresentation.substr(0, SETTINGS['ui']['clips']['display']['max-length']) + "...";
             }
         } else if (this.props.clip.type == "image") {
             clipRepresentation = "[ image ]";
@@ -84,8 +90,31 @@ class ClipView extends React.Component {
             clipRepresentation = "";
         }
 
-        return <div onClick={this.activateClip} className="clip">{clipRepresentation}</div>;
+        return <div onClick={this.activateClip} className="clip">
+            {clipRepresentation}
+            <div className="clip-actions">{clipActions}</div>
+        </div>;
     }
+}
+
+class ClipAction extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.clickAction = this.clickAction.bind(this);
+    }
+
+    clickAction(event) {
+        ipcRenderer.send('action-execute', { "clipIndex": this.props.clipIndex, "action": this.props.action.type });
+        event.stopPropagation();
+    }
+
+    render() {
+        return <div onClick={this.clickAction} className="clip-action">
+            <span className={`mdi ${this.props.action.icon}`}></span>
+        </div>
+    }
+
 }
 
 ipcRenderer.on('clips-update', function (event, clips) {

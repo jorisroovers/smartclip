@@ -16,6 +16,8 @@ npm run webpack-dev-server
 npm run dev
 ```
 
+NOTE: materialdesignicons.min.css was modified to remove any reference to other fonts but the woff2 format (this was only at the top of the file).
+
 **Production**
 ```bash
 # Production build:
@@ -23,7 +25,6 @@ node_modules/.bin/webpack
 #  Run
 npm start .
 ```
-
 
 # TODO #
 - Storing clips in encrypted file
@@ -36,3 +37,6 @@ npm start .
 - markdown to MS Office markup
 - Replace newlines in clip representation with newline symbols
 - Make things configurable
+- Edit before copy
+- Show entire clip in textarea
+- Added logging
