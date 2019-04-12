@@ -1,59 +1,30 @@
 'use strict';
-import css from './css/styles.css';
-import './fonts/materialdesignicons-webfont.woff2';
-import './css/materialdesignicons.min.css';
 
-const ipcRenderer = window.require("electron").ipcRenderer;
+import { ipcRenderer } from "electron";
+import React from "react";
 
-const React = require("react");
-const ReactDOM = require("react-dom"); //.ReactDOM;
+import { Link } from "react-router-dom";
+import SETTINGS from '../config'
 
-ipcRenderer.send('init', true);
+import { observer } from "mobx-react";
 
-let SETTINGS = {};
-
-ipcRenderer.on('init', function (event, settings) {
-    SETTINGS = settings;
-    console.log(settings);
-});
-
+@observer
 class ClipboardView extends React.Component {
 
     constructor(props) {
         super(props);
-        // thanks: https://stackoverflow.com/questions/37440408/how-to-detect-esc-key-press-in-react-and-how-to-handle-it/46123962
-        this.escFunction = this.escFunction.bind(this);
-        this.clearClips = this.clearClips.bind(this);
     }
 
     render() {
-        let clipViews = [];
-        for (let i = 0; i < this.props.clips.length; i++) {
-            clipViews.push(<ClipView key={this.props.clips[i].uuid} clipIndex={i} clip={this.props.clips[i]} />);
-        }
         return <div className="clipboard">
-            {clipViews}
-            <button onClick={this.clearClips}>Clear</button>
+            {this.props.clipStore.clips.map((clip, idx) =>
+                <ClipView key={clip.uuid} clipIndex={idx} clip={clip} />
+            )}
         </div>;
-    }
-
-    clearClips(event) {
-        ipcRenderer.send('clear-clips', this.props.clip);
-    }
-
-    escFunction(event) {
-        if (event.keyCode === 27) {
-            ipcRenderer.send('hide-window', true);
-        }
-    }
-    componentDidMount() {
-        document.addEventListener("keydown", this.escFunction, false);
-    }
-    componentWillUnmount() {
-        document.removeEventListener("keydown", this.escFunction, false);
     }
 }
 
+@observer
 class ClipView extends React.Component {
     constructor(props) {
         super(props);
@@ -73,7 +44,6 @@ class ClipView extends React.Component {
 
         for (let actionType in this.props.clip.actions) {
             let action = this.props.clip.actions[actionType];
-            console.log(action);
             clipActions.push(<ClipAction key={action.uuid} action={action} clipIndex={this.props.clipIndex} />)
         }
 
@@ -92,11 +62,15 @@ class ClipView extends React.Component {
 
         return <div onClick={this.activateClip} className="clip">
             {clipRepresentation}
-            <div className="clip-actions">{clipActions}</div>
+            <div className="clip-actions">
+                {clipActions}
+                <ClipDetailsButton clip={this.props.clip} />
+            </div>
         </div>;
     }
 }
 
+@observer
 class ClipAction extends React.Component {
 
     constructor(props) {
@@ -114,13 +88,22 @@ class ClipAction extends React.Component {
             <span className={`mdi ${this.props.action.icon}`}></span>
         </div>
     }
-
 }
 
-ipcRenderer.on('clips-update', function (event, clips) {
-    ReactDOM.render(
-        <ClipboardView clips={clips} />,
-        document.getElementById('root')
-    );
-});
+@observer
+class ClipDetailsButton extends React.Component {
 
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return <div className="clip-details-button">
+            <Link to={`/clip/${this.props.clip.uuid}`}>
+                <span className={"mdi mdi-dots-horizontal"}></span>
+            </Link>
+        </div>
+    }
+}
+
+export { ClipboardView };

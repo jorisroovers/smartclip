@@ -7,7 +7,7 @@ module.exports = {
     entry: [
         // 'webpack-dev-server/client?http://0.0.0.0:8080', // WebpackDevServer host and port
         // 'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
-        './smartclip/client.jsx',
+        './smartclip/index.jsx',
     ],
     output: {
         filename: 'bundle.js',
@@ -20,7 +20,7 @@ module.exports = {
     target: "electron-renderer",
     module: {
         rules: [
-            { test: /\.jsx$/, use: ['react-hot-loader/webpack', 'babel-loader'], exclude: /node_modules/ },
+            { test: /\.jsx$/, resolve: { extensions: [".js", ".jsx"] }, use: ['react-hot-loader/webpack', 'babel-loader'], exclude: /node_modules/ },
             { test: /\.css$/, use: ['style-loader', 'css-loader'] },
             { test: /\.(png|svg|jpg|gif)$/, use: ['file-loader'] },
             { test: /\.(woff|woff2|eot|ttf|otf)$/, use: ['file-loader'] }

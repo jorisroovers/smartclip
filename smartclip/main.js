@@ -1,5 +1,9 @@
-const { app, ipcMain, BrowserWindow, Tray, clipboard } = require('electron')
-const path = require('path')
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This file is the main electron program entry point - everything starts here :-)                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NOTE: NodeJS doesn't support ES6-style imports yet (experimental in 11.x) - so we still use require()
+const { app, ipcMain, BrowserWindow, Tray, clipboard } = require('electron');
+const path = require('path');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -26,24 +30,36 @@ let SETTINGS = {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 250,
+        width: 350,
         height: 310,
         show: false,
         frame: false,
         fullscreenable: false,
         resizable: true, // true for easy debugging with dev tools
         transparent: false,
-        'node-integration': false
+        nodeIntegration: false // https://electronjs.org/docs/faq#i-can-not-use-jqueryrequirejsmeteorangularjs-in-electron
     });
 
     SETTINGS['dev-mode'] = process.env.SMARTCLIP_DEV == '1' || false;
     console.log("DEV MODE", SETTINGS['dev-mode']);
     if (SETTINGS['dev-mode']) {
+        // Install react developer tools
+        const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+
+        installExtension(REACT_DEVELOPER_TOOLS)
+            .then((name) => console.log(`Added Extension:  ${name}`))
+            .catch((err) => console.log('An error occurred: ', err));
+
         mainWindow.loadURL('http://localhost:8080');
         mainWindow.webContents.toggleDevTools();
         mainWindow.setSize(700, 500);
+
+        // DEV specific settings
         SETTINGS['ui']['hide-on-copy'] = false;
         SETTINGS['ui']['tray-icon'] = path.join(imagesDir, 'tray-dev16x16.png');
+
+
+
     } else {
         mainWindow.loadURL(`file://${__dirname}/../dist/index.html`);
     }
@@ -208,6 +224,11 @@ ipcMain.on('init', function (event, arg) {
     clipUpdateSender.send("clips-update", smartclipboard.clips);
     mainWindow.hide();
 });
+
+ipcMain.on('quit', function (event, arg) {
+    app.quit();
+});
+
 
 smartclipboard.addClipWatcher(function (clip, clips) {
     clipUpdateSender.send("clips-update", smartclipboard.clips);

@@ -26,7 +26,7 @@ function isJson(str) {
 }
 
 function isURL(url) {
-    let expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi;
+    let expression = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi;
     let regex = new RegExp(expression);
     return url.match(regex) != null;
 };
@@ -84,7 +84,6 @@ class SmartClipBoard {
 
     addClip(clip) {
         if (!this.ignoreNext) {
-            this.clips.indexOf(clip)
 
             this.clips.unshift(clip);
             if (this.clips.length > this.clipThreshold) {
@@ -104,10 +103,11 @@ class SmartClipBoard {
 }
 
 class ClipAction {
-    constructor(type, icon, clip) {
+    constructor(type, clip, icon, tooltip) {
         this.uuid = uuidv4();
         this.type = type;
         this.icon = icon;
+        this.tooltip = tooltip;
         this.clip = clip;
     }
 
@@ -120,7 +120,7 @@ class ClipAction {
 class OpenURLAction extends ClipAction {
 
     constructor(clip) {
-        super("open-url", "mdi-link-variant", clip);
+        super("open-url", clip, "mdi-link-variant", "Open URL in browser");
     }
 
     execute() {
@@ -133,7 +133,7 @@ class OpenURLAction extends ClipAction {
 class CopyJsonAction extends ClipAction {
 
     constructor(clip) {
-        super("copy-json", "mdi-json", clip);
+        super("copy-json", clip, "mdi-json", "Copy as formatted JSON");
     }
 
     execute() {

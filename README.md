@@ -35,8 +35,22 @@ npm start .
 - trim whitespace
 - base64, md5, encode, etc
 - markdown to MS Office markup
-- Replace newlines in clip representation with newline symbols
+- tabs-to-spaces
+- Replace newlines/tabs in clip representation with newline/tab symbols
 - Make things configurable
 - Edit before copy
+- Pin clips
 - Show entire clip in textarea
-- Added logging
+- Search/replace in clip
+- Open Clip in editor
+- Save clip as file, Save as file and open
+- Logging
+- Custom Actions
+- Details page
+- Themes/Darkmode
+- Auto-detect dark mode on mac
+- URL: only match URL, not text incl URL
+- About page with link to github
+- Delete specific item
+- Email recognition
+- Website Icon/Help icon link

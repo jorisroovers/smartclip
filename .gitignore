@@ -38,3 +38,5 @@ jspm_packages
 
 # Prod builds
 dist/
+
+nohup.out
