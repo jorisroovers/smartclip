@@ -1,4 +1,4 @@
-import { observable } from "mobx"
+import { observable, extendObservable } from "mobx"
 import { ipcRenderer } from "electron";
 
 
@@ -20,7 +20,8 @@ export default class ClipStore {
 const clipStore = new ClipStore();
 
 ipcRenderer.on('clips-update', function (event, clips) {
-    clipStore.clips = clips;
+    clipStore.clips.replace(clips);
+    // clipStore.set{ clips: clips })
 });
 
 export { clipStore };

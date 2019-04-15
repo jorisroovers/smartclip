@@ -6,7 +6,9 @@ import { ipcRenderer } from "electron";
 import { ClipboardView } from "./Clipboard"
 import { Link } from "react-router-dom";
 
+import { observer } from "mobx-react";
 
+@observer
 class TrayMenu extends React.Component {
 
     constructor(props) {

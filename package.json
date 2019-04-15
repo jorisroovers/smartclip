@@ -1,7 +1,7 @@
 {
   "name": "smartclip",
   "version": "0.1.0",
-  "main": "smartclip/main.js",
+  "main": "smartclip/electron/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "SMARTCLIP_DEV=1 electron .",
@@ -33,6 +33,7 @@
     "electron-clipboard-watcher": "^1.0.1",
     "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
+    "moment": "^2.24.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",

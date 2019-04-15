@@ -1,11 +1,24 @@
 html,
 body {
     font-family: "San Francisco", Arial;
-    font-size: 15px;
+    font-size: 14px;
     padding: 0;
     margin: 0;
     position: relative;
     width: 100%;
+    color: #343434;
+}
+
+.page {
+    padding: 10px;
+}
+
+.no-clips-yet {
+    color: #aaa;
+    font-size: 150%;
+    margin: 20% 10%;
+    text-align: center;
+    /* margin-top: 20%; */
 }
 
 .clip {
@@ -21,6 +34,10 @@ body {
     cursor: pointer;
 }
 
+.clip-image-representation {
+    height: 40px;
+}
+
 .clip-actions {
     margin-left: auto;
     right: 0px;
@@ -28,6 +45,7 @@ body {
 }
 
 .clip-action,
+.clip-shortcut,
 .clip-details-button {
     border: 1px solid #bbb;
     background: #fff;
@@ -39,6 +57,7 @@ body {
 }
 
 .clip-action:hover,
+.clip-shortcut:hover,
 .clip-details-button:hover {
     background: #aaa;
     cursor: pointer;

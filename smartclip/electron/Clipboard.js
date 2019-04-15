@@ -1,6 +1,8 @@
 const clipboardWatcher = require('electron-clipboard-watcher')
 const uuidv4 = require('uuid/v4');
-const { shell, clipboard } = require("electron");
+
+const { ActionAnnotator } = require("./ClipActions");
+
 
 class Clip {
     constructor(clip, sticky = false) {
@@ -16,41 +18,20 @@ class Clip {
 }
 
 
-function isJson(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
-
-function isURL(url) {
-    let expression = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi;
-    let regex = new RegExp(expression);
-    return url.match(regex) != null;
-};
-
 class TextClip extends Clip {
     constructor(text, sticky = false) {
         super(sticky);
         this.type = "text";
         this.text = text;
-        if (isURL(this.text)) {
-            this.addAction(new OpenURLAction(this));
-        }
-        if (isJson(this.text)) {
-            this.addAction(new CopyJsonAction(this));
-        }
     }
 
 }
 
 class ImageClip extends Clip {
-    constructor(image, sticky = false) {
+    constructor(nativeImage, sticky = false) {
         super(sticky);
         this.type = "image";
-        this.image = image;
+        this.image = { dataURL: nativeImage.toDataURL(), nativeImage: nativeImage }
     }
 }
 
@@ -84,11 +65,16 @@ class SmartClipBoard {
 
     addClip(clip) {
         if (!this.ignoreNext) {
+            // Add actions to the clip
+            ActionAnnotator.annotateClip(clip);
 
+            // Add the clip to the front (not efficient but doesn't really matter for small array sizes)
             this.clips.unshift(clip);
             if (this.clips.length > this.clipThreshold) {
                 this.clips.pop();
             }
+
+            // Notify observers
             for (let watcher of this.watchers) {
                 watcher(clip, this.clips);
             }
@@ -102,47 +88,6 @@ class SmartClipBoard {
 
 }
 
-class ClipAction {
-    constructor(type, clip, icon, tooltip) {
-        this.uuid = uuidv4();
-        this.type = type;
-        this.icon = icon;
-        this.tooltip = tooltip;
-        this.clip = clip;
-    }
 
-    execute() {
-        console.log(`ClipAction for Clip ${this.clip.uuid} - default execute()`);
-    }
-
-}
-
-class OpenURLAction extends ClipAction {
-
-    constructor(clip) {
-        super("open-url", clip, "mdi-link-variant", "Open URL in browser");
-    }
-
-    execute() {
-        console.log(`open URL: ${this.clip.text}`);
-        shell.openExternal(this.clip.text);
-    }
-
-}
-
-class CopyJsonAction extends ClipAction {
-
-    constructor(clip) {
-        super("copy-json", clip, "mdi-json", "Copy as formatted JSON");
-    }
-
-    execute() {
-        console.log(`Copy json: ${this.clip.text}`);
-        let json = JSON.parse(this.clip.text);
-        let jsonStr = JSON.stringify(json, null, 4);
-        clipboard.writeText(jsonStr);
-    }
-
-}
 
 module.exports.SmartClipBoard = SmartClipBoard;

@@ -5,6 +5,8 @@
 const { app, ipcMain, BrowserWindow, Tray, clipboard } = require('electron');
 const path = require('path');
 
+const { SETTINGS } = require("./Settings");
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -12,21 +14,6 @@ let tray;
 
 const imagesDir = path.join(__dirname, 'images');
 
-let SETTINGS = {
-    "ui": {
-        "clips": {
-            "display": {
-                "max-length": 50
-            },
-        },
-        "hide-on-copy": true,
-        "hide-dock-icon": true,
-        "tray-icon": path.join(imagesDir, 'tray16x16.png'),
-        "newline-representation": "&#8629;",
-        "tab-representation": "[TAB]",
-    },
-    "dev-mode": false
-};
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -191,7 +178,7 @@ ipcMain.on('copy-clip', function (event, clipIndex) {
     if (clip.type == "text") {
         clipboard.writeText(clip.text);
     } else if (clip.type == "image") {
-        clipboard.writeImage(clip.image);
+        clipboard.writeImage(clip.image.nativeImage);
     }
 });
 
@@ -208,7 +195,7 @@ ipcMain.on('action-execute', function (event, data) {
 
 
 let clipUpdateSender = null;
-let clipboardBackend = require('./clipboard');
+let clipboardBackend = require('./Clipboard');
 let smartclipboard = new clipboardBackend.SmartClipBoard();
 
 // TODO: added test data at startup: not working?

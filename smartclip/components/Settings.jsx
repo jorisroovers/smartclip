@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { BackLink } from "./Navigation"
+import { Page } from "./Navigation"
 
 import { ipcRenderer } from "electron";
 
@@ -19,13 +19,11 @@ class SettingsView extends React.Component {
     }
 
     render() {
-        return <div>
-            <BackLink to="/" />
-
+        return <Page>
             <h2>Settings</h2>
             <button onClick={this.toggleDeveloperTools}>Toggle Developer Tools</button>
             <p>Not a lot here, please come back later :-)</p>
-        </div>
+        </Page>
     }
 }
 

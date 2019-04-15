@@ -15,4 +15,13 @@ class BackLink extends React.Component {
     }
 }
 
-export { BackLink };
+class Page extends React.Component {
+    render() {
+        return <div className="page">
+            <BackLink to="/">Back</BackLink>
+            {this.props.children}
+        </div>
+    }
+}
+
+export { BackLink, Page };

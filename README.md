@@ -4,6 +4,8 @@ Smart clipboard app for macOS written in NodeJS using electron, Ecmascript 6 and
 
 I have some good ideas, but it's very early stages at this point! Using this opportunity to learn ReactJS along the way :-)
 
+I'm currently not really looking at code quality or keeping git commits small and contained, it's really all about having fun.
+
 # Getting Started #
 
 ```bash
@@ -24,7 +26,14 @@ NOTE: materialdesignicons.min.css was modified to remove any reference to other 
 node_modules/.bin/webpack
 #  Run
 npm start .
+
+# Run in background
+nohup npm start . & echo $! > PID
+# Kill backgroun
+kill `cat PID`
 ```
+
+
 
 # TODO #
 - Storing clips in encrypted file
@@ -54,3 +63,10 @@ npm start .
 - Delete specific item
 - Email recognition
 - Website Icon/Help icon link
+
+# Components
+- Editor
+- Short-Representation
+- Actions
+- EditorActions
+- 
