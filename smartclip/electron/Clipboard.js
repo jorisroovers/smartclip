@@ -3,9 +3,13 @@ const uuidv4 = require('uuid/v4');
 
 const { ActionAnnotator } = require("./ClipActions");
 
+const { clipboard } = require("electron");
+
+const { SETTINGS } = require("./Settings");
+
 
 class Clip {
-    constructor(clip, sticky = false) {
+    constructor(sticky = false) {
         this.sticky = sticky;
         this.type = "base";
         this.uuid = uuidv4();
@@ -37,9 +41,8 @@ class ImageClip extends Clip {
 
 class SmartClipBoard {
 
-    constructor(clipThreshold = 25) {
+    constructor() {
         this.clips = [];
-        this.clipThreshold = clipThreshold;
         this.watchers = [];
         var self = this;
 
@@ -63,23 +66,97 @@ class SmartClipBoard {
         this.watchers.push(watcher);
     }
 
-    addClip(clip) {
+    findByUUID(uuid) {
+        return this.clips.find((clip, index, array) => clip.uuid == uuid)
+    }
+
+    deleteByUUID(uuid) {
+        this.clips = this.clips.filter(clip => clip.uuid !== uuid)
+
+        // Notify observers
+        for (let watcher of this.watchers) {
+            watcher(null, this.clips);
+        }
+    }
+
+    pinByUUID(clipUUID) {
+        let clip = this.findByUUID(clipUUID);
+        clip.sticky = true;
+
+        // Notify observers
+        for (let watcher of this.watchers) {
+            watcher(clip, this.clips);
+        }
+    }
+
+    unpinByUUID(clipUUID) {
+        let clip = this.findByUUID(clipUUID);
+        clip.sticky = false;
+
+        // Notify observers
+        for (let watcher of this.watchers) {
+            watcher(clip, this.clips);
+        }
+    }
+
+    addClip(clip, notifyWatchers = true) {
         if (!this.ignoreNext) {
             // Add actions to the clip
             ActionAnnotator.annotateClip(clip);
 
             // Add the clip to the front (not efficient but doesn't really matter for small array sizes)
             this.clips.unshift(clip);
-            if (this.clips.length > this.clipThreshold) {
-                this.clips.pop();
-            }
+            this.compact(false);
 
             // Notify observers
-            for (let watcher of this.watchers) {
-                watcher(clip, this.clips);
+            if (notifyWatchers) {
+                for (let watcher of this.watchers) {
+                    watcher(clip, this.clips);
+                }
             }
+
         }
         this.ignoreNext = false;
+    }
+
+    /**
+     * Compacts the clipboard to only keep the `SETTINGS['max-clipboard-size']` most recent clips.
+     */
+    compact(notifyWatchers = true) {
+        if (this.clips.length > SETTINGS['max-clipboard-size']) {
+            let newClips = [];
+            let i = 0;
+            while (newClips.length < SETTINGS['max-clipboard-size'] && i < this.clips.length) {
+                newClips.push(this.clips[i]);
+                i++;
+            }
+            this.clips = newClips;
+
+            // Notify observers
+            if (notifyWatchers) {
+                for (let watcher of this.watchers) {
+                    watcher(null, this.clips);
+                }
+            }
+        }
+    }
+
+    /**
+     * Write a given object to the system clipboard. Knows how to deal with different clip and plain object types.
+     * @param {*} obj Object to add.
+     * @param {*} addClip Whether to also add the clip to the history of clips we maintain.
+     */
+    writeSystemClipboard(obj, keepInHistory = true) {
+        if (obj instanceof TextClip) {
+            this.ignoreNext = !keepInHistory;
+            clipboard.writeText(obj.text);
+        } else if (obj instanceof ImageClip) {
+            this.ignoreNext = !keepInHistory;
+            clipboard.writeImage(clip.image.nativeImage);
+        } else if (typeof (obj) == "string") {
+            this.ignoreNext = !keepInHistory;
+            clipboard.writeText(obj);
+        }
     }
 
     clear() {
@@ -88,6 +165,8 @@ class SmartClipBoard {
 
 }
 
+const clipboardInstance = new SmartClipBoard();
 
-
-module.exports.SmartClipBoard = SmartClipBoard;
+module.exports.SmartClipBoard = clipboardInstance;
+module.exports.TextClip = TextClip;
+module.exports.ImageClip = ImageClip;

@@ -1,4 +1,4 @@
-const { shell, clipboard } = require("electron");
+const { shell } = require("electron");
 
 const { SETTINGS } = require("./Settings");
 
@@ -57,7 +57,9 @@ class CopyJsonAction extends ClipAction {
         console.log(`Copy json: ${this.clip.text}`);
         let json = JSON.parse(this.clip.text);
         let jsonStr = JSON.stringify(json, null, 4);
-        clipboard.writeText(jsonStr);
+        let clipboardBackend = require('./Clipboard');
+        let SmartClipBoard = clipboardBackend.SmartClipBoard;
+        SmartClipBoard.writeSystemClipboard(jsonStr, false);
     }
 
 }
@@ -91,19 +93,19 @@ class ActionAnnotator {
 
     static annotateClip(clip) {
         if (clip.type == "text") {
-            return this.annotateTextClip(clip);
+            return ActionAnnotator.annotateTextClip(clip);
         } else if (clip.type == "image") {
-            return this.annotateImageClip(clip);
+            return ActionAnnotator.annotateImageClip(clip);
         }
         return clip;
     }
 
     static annotateTextClip(clip) {
         if (isURL(clip.text)) {
-            this.addAction(new OpenURLAction(clip));
+            clip.addAction(new OpenURLAction(clip));
         }
         if (isJson(clip.text)) {
-            this.addAction(new CopyJsonAction(clip));
+            clip.addAction(new CopyJsonAction(clip));
         }
         clip.addAction(new SaveAsFileAction(clip));
         return clip;

@@ -7,6 +7,7 @@ const path = require('path');
 
 const { SETTINGS } = require("./Settings");
 
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -14,7 +15,9 @@ let tray;
 
 const imagesDir = path.join(__dirname, 'images');
 
-
+////////////////////////////////////////////////////////////////////////////////
+// Window Handling                                                            //
+////////////////////////////////////////////////////////////////////////////////
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 350,
@@ -45,8 +48,6 @@ function createWindow() {
         SETTINGS['ui']['hide-on-copy'] = false;
         SETTINGS['ui']['tray-icon'] = path.join(imagesDir, 'tray-dev16x16.png');
 
-
-
     } else {
         mainWindow.loadURL(`file://${__dirname}/../dist/index.html`);
     }
@@ -55,15 +56,7 @@ function createWindow() {
         app.dock.hide();
     }
 
-
-    // We can access settings here like this:
-    // const storage = require('electron-json-storage');
-    // storage.get('settings.user', function (error, data) {
-    //     // console.log(data);
-    // });
-
     mainWindow.on('close', function (event) {
-        console.log("close window")
         // if we're not really quitting, then just hide the window
         if (!app.isQuitting) {
             event.preventDefault();
@@ -120,7 +113,6 @@ function getWindowPosition() {
     }
 };
 
-
 function showWindow() {
     const position = getWindowPosition()
     mainWindow.setPosition(position.x, position.y, false)
@@ -137,7 +129,7 @@ app.on('ready', function () {
     createTray();
 });
 
-// Quit when all windows are closed.s
+// Quit when all windows are closed.
 app.on('window-all-closed', function () {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
@@ -161,7 +153,35 @@ app.on('activate', function () {
     }
 });
 
-// events send by client
+
+////////////////////////////////////////////////////////////////////////////////
+// Application related IPC                                                    //
+////////////////////////////////////////////////////////////////////////////////
+
+
+let clipboardBackend = require('./Clipboard');
+let smartclipboard = clipboardBackend.SmartClipBoard;
+let clipUpdateSender = null;
+
+ipcMain.on('init', function (event, arg) {
+    clipUpdateSender = event.sender;
+    smartclipboard.addClipWatcher(function (clip, clips) {
+        clipUpdateSender.send("clips-update", smartclipboard.clips);
+    });
+
+    // Update client
+    clipUpdateSender.send("settings-update", SETTINGS);
+    clipUpdateSender.send("clips-update", smartclipboard.clips);
+
+    mainWindow.hide();
+    if (SETTINGS['dev-mode']) {
+        console.log("[DEV MODE] Populating with some sample data");
+        smartclipboard.addClip(new clipboardBackend.TextClip("test123", true));
+        smartclipboard.addClip(new clipboardBackend.TextClip('{"person": { "name": "john", "age": 43}}'));
+        smartclipboard.addClip(new clipboardBackend.TextClip("https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url"));
+    }
+
+});
 
 ipcMain.on('hide-window', function (event, arg) {
     mainWindow.hide();
@@ -171,52 +191,46 @@ ipcMain.on('toggle-dev-tools', function (event, arg) {
     mainWindow.webContents.toggleDevTools();
 });
 
-ipcMain.on('copy-clip', function (event, clipIndex) {
-    let clip = smartclipboard.clips[clipIndex];
-    smartclipboard.ignoreNext = true;
-
-    if (clip.type == "text") {
-        clipboard.writeText(clip.text);
-    } else if (clip.type == "image") {
-        clipboard.writeImage(clip.image.nativeImage);
-    }
-});
-
-ipcMain.on('clear-clips', function (event, arg) {
-    smartclipboard.clear();
-    clipUpdateSender.send("clips-update", smartclipboard.clips);
-});
-
-ipcMain.on('action-execute', function (event, data) {
-    // TODO: proper error handling
-    let clip = smartclipboard.clips[data['clipIndex']];
-    clip.actions[data['action']].execute();
-});
-
-
-let clipUpdateSender = null;
-let clipboardBackend = require('./Clipboard');
-let smartclipboard = new clipboardBackend.SmartClipBoard();
-
-// TODO: added test data at startup: not working?
-// if (SETTINGS['dev-mode']) {
-//     console.log("[DEV MODE] Populating with some sample data");
-//     smartclipboard.addClip(smartclipboard.TextClip("test123 &#8629;"));
-//     smartclipboard.addClip(smartclipboard.TextClip("https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url"));
-// }
-
-ipcMain.on('init', function (event, arg) {
-    clipUpdateSender = event.sender;
-    clipUpdateSender.send("init", SETTINGS);
-    clipUpdateSender.send("clips-update", smartclipboard.clips);
-    mainWindow.hide();
-});
-
 ipcMain.on('quit', function (event, arg) {
     app.quit();
 });
 
 
-smartclipboard.addClipWatcher(function (clip, clips) {
+ipcMain.on('save-settings', function (event, newSettings) {
+    Object.assign(SETTINGS, newSettings);
+    smartclipboard.compact(); // settings might impact clipboard size
+    console.log(SETTINGS);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+// Clipboard related IPC                                                      //
+////////////////////////////////////////////////////////////////////////////////
+
+ipcMain.on('copy-clip', function (_, clipUUID) {
+    let clip = smartclipboard.findByUUID(clipUUID);
+    smartclipboard.writeSystemClipboard(clip, false);
+});
+
+ipcMain.on('delete-clip', function (_, clipUUID) {
+    smartclipboard.deleteByUUID(clipUUID);
+});
+
+ipcMain.on('pin-clip', function (_, clipUUID) {
+    console.log("TODO: pinning");
+    smartclipboard.pinByUUID(clipUUID);
+});
+
+ipcMain.on('unpin-clip', function (_, clipUUID) {
+    console.log("TODO: unpinning");
+    smartclipboard.unpinByUUID(clipUUID);
+});
+
+ipcMain.on('clear-clips', function (_, arg) {
+    smartclipboard.clear();
     clipUpdateSender.send("clips-update", smartclipboard.clips);
+});
+
+ipcMain.on('action-execute', function (event, data) {
+    let clip = smartclipboard.findByUUID(data['clipUUID'])
+    clip.actions[data['action']].execute();
 });

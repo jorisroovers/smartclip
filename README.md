@@ -2,7 +2,7 @@
 
 Smart clipboard app for macOS written in NodeJS using electron, Ecmascript 6 and React. Focus on developer and power-user convenience.
 
-I have some good ideas, but it's very early stages at this point! Using this opportunity to learn ReactJS along the way :-)
+I believe I have some good ideas, but it's very early stages at this point! Using this opportunity to learn ReactJS along the way :-)
 
 I'm currently not really looking at code quality or keeping git commits small and contained, it's really all about having fun.
 
@@ -33,11 +33,19 @@ nohup npm start . & echo $! > PID
 kill `cat PID`
 ```
 
+# TODO
 
+## General
 
-# TODO #
 - Storing clips in encrypted file
     - Generate encryption key on first install (this is for later)
+- Make things configurable
+- Edit before copy
+- Logging
+- Delete specific item
+- Blacklist certain application sources (i.e. don't show on clipboard if copied from certain apps)
+
+# Formatters
 - image resizing and cropping from tray
 - autoformat json, yaml, etc
 - convert from json to e.g. yaml
@@ -46,22 +54,21 @@ kill `cat PID`
 - markdown to MS Office markup
 - tabs-to-spaces
 - Replace newlines/tabs in clip representation with newline/tab symbols
-- Make things configurable
-- Edit before copy
+
 - Pin clips
-- Show entire clip in textarea
 - Search/replace in clip
 - Open Clip in editor
 - Save clip as file, Save as file and open
-- Logging
+
 - Custom Actions
 - Details page
 - Themes/Darkmode
 - Auto-detect dark mode on mac
 - URL: only match URL, not text incl URL
 - About page with link to github
-- Delete specific item
+
 - Email recognition
+- Linting
 - Website Icon/Help icon link
 
 # Components

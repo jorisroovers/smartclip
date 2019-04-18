@@ -1,0 +1,155 @@
+@import "./mdi/materialdesignicons.scss";
+
+html,
+body {
+    font-family: "San Francisco", Arial;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    width: 100%;
+    color: #343434;
+}
+
+.page {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.clip-controls {
+    position: fixed;
+    bottom: 0;
+    // Don't set width, instead set both left and right to 0 to achieve a width of 100%
+    // https://stackoverflow.com/questions/18442628/position-fixed-width-100
+    right: 0;
+    left: 0;
+    padding: 10px;
+    background: #74bfea;
+    display: flex;
+    justify-content: flex-start;
+
+    button {
+        font-size: 120%;
+        margin: 0 5px;
+    }
+
+    .copy-clip-button {
+        margin-left: auto;
+    }
+
+}
+
+.no-clips-yet {
+    color: #aaa;
+    font-size: 150%;
+    margin: 20% 10%;
+    text-align: center;
+}
+
+.clip {
+    position: relative;
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 5px 10px;
+
+    &:hover {
+        background: #ddeaff;
+        cursor: pointer;
+    }
+
+    .pin-clip-item-unpinned {
+        @extend .mdi;
+        @extend .mdi-pin-outline;
+        color: #ababab;
+
+        &:hover {
+            @extend .mdi-pin;
+            color: #343434;
+        }
+    }
+
+    .pin-clip-item-pinned {
+        @extend .mdi;
+        @extend .mdi-pin;
+        color: #343434;
+
+        &:hover {
+            @extend .mdi-pin-off;
+            color: #343434;
+        }
+    }
+
+    &.pinned {
+        background: #ffcdcd;
+        font-weight: bold;
+    }
+
+}
+
+.clip-image-representation {
+    height: 40px;
+}
+
+.clip-actions {
+    margin-left: auto;
+    right: 0px;
+    top: 0px;
+}
+
+.clip-action,
+.clip-shortcut,
+.clip-details-button {
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 4px;
+    padding: 2px;
+    display: inline;
+    margin-left: 2px;
+    color: #454545;
+
+    &:hover {
+        background: #aaa;
+        cursor: pointer;
+    }
+}
+
+.back-link a {
+    text-decoration: none;
+    color: #454545;
+    margin-left: 5px;
+}
+
+.back-link:hover * {
+    color: #0000ee;
+    cursor: pointer;
+}
+
+.clip-text-detail {
+    margin-top: 10px;
+    width: 95%;
+    height: 300px;
+}
+
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    // Don't set width, instead set both left and right to 0 to achieve a width of 100%
+    // https://stackoverflow.com/questions/18442628/position-fixed-width-100
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: flex-end;
+    background: #dfdfdf;
+    padding: 10px;
+
+    .clear {
+        margin-right: auto;
+    }
+
+    * {
+        margin: 0 2px;
+    }
+}

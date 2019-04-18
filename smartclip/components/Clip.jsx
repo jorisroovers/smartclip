@@ -6,6 +6,10 @@ import { observer } from "mobx-react";
 
 import { ipcRenderer } from "electron";
 
+import { withRouter } from 'react-router-dom';
+
+import { clipStore } from "../stores/ClipStore.jsx"
+
 @observer
 class ClipDetailView extends React.Component {
 
@@ -14,7 +18,7 @@ class ClipDetailView extends React.Component {
         let clip = this.props.clipStore.findByUUID(clipUUID);
         return <Page>
             <ClipEditor clip={clip} />
-            <div className="clip-actions"></div>
+            <ClipControlsWithRouter clip={clip} />
         </Page>
     }
 }
@@ -40,15 +44,19 @@ class ClipTextEditor extends React.Component {
         return <div>
             <textarea className="clip-text-detail" defaultValue={this.props.clip.text}></textarea>
             <div>
-                <h1>Actions</h1>
+                <span>Formatters</span>
+            </div>
+            <div>
+                <span>Info</span>
+            </div>
+            <div>
+                Actions
                 {Object.values(this.props.clip.actions).map((action) =>
-                    <ClipAction key={action.uuid} action={action} clipIndex={this.props.clipIndex} />
+                    <ClipAction key={action.uuid} action={action} />
                 )}
             </div>
         </div>
-
     }
-
 }
 
 class ClipImageEditor extends React.Component {
@@ -72,7 +80,7 @@ class ClipAction extends React.Component {
     }
 
     clickAction(event) {
-        ipcRenderer.send('action-execute', { "clipIndex": this.props.clipIndex, "action": this.props.action.type });
+        ipcRenderer.send('action-execute', { "clipUUID": this.props.action.clip.uuid, "action": this.props.action.type });
         event.stopPropagation();
     }
 
@@ -91,5 +99,44 @@ class ClipAction extends React.Component {
         </div>
     }
 }
+
+class ClipControls extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.deleteClip = this.deleteClip.bind(this);
+        this.copyClip = this.copyClip.bind(this);
+        this.togglePinClip = this.togglePinClip.bind(this);
+    }
+
+
+    deleteClip() {
+        let deleteConfirmed = confirm("Are you sure you want to delete this clip?");
+        if (deleteConfirmed) {
+            clipStore.deleteByUUID(this.props.clip.uuid);
+            this.props.history.push("/");
+        }
+    }
+
+    copyClip() {
+        clipStore.copyByUUID(this.props.clip.uuid);
+    }
+
+    togglePinClip() {
+        clipStore.togglePinByUUID(this.props.clip.uuid);
+    }
+
+    render() {
+        return <div className="clip-controls">
+            <button className="delete-clip-button" onClick={this.deleteClip}>Delete</button>
+            <button className="pin-clip-button" onClick={this.togglePinClip}>Pin</button>
+            <button className="copy-clip-button" onClick={this.copyClip}>Copy</button>
+        </div>
+    }
+
+}
+
+const ClipControlsWithRouter = withRouter(ClipControls);
+
 
 export { ClipAction, ClipDetailView };

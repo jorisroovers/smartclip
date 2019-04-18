@@ -21,7 +21,7 @@ module.exports = {
     module: {
         rules: [
             { test: /\.jsx$/, resolve: { extensions: [".js", ".jsx"] }, use: ['react-hot-loader/webpack', 'babel-loader'], exclude: /node_modules/ },
-            { test: /\.css$/, use: ['style-loader', 'css-loader'] },
+            { test: /\.(s*)css$/, use: ['style-loader', 'css-loader', 'sass-loader'] },
             { test: /\.(png|svg|jpg|gif)$/, use: ['file-loader'] },
             { test: /\.(woff|woff2|eot|ttf|otf)$/, use: ['file-loader'] }
         ],

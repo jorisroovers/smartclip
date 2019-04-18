@@ -15,6 +15,13 @@ This is regular text
 
 Nunc rhoncus elit in nisl efficitur, sed volutpat sem iaculis. Nunc eu justo at nulla sodales elementum. Nam malesuada elit eget lorem sollicitudin vestibulum. Morbi venenatis efficitur odio et posuere. Aliquam quis purus ut est gravida sollicitudin id ac mi. Ut eget augue orci. In aliquet ante id neque pharetra, eget fringilla est consequat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut eleifend a nulla a vestibulum. Proin at fermentum magna. Proin euismod quam quam. In hac habitasse platea dictumst. Sed facilisis tincidunt est eget consequat. Integer purus felis, sagittis id finibus sit amet, gravida a turpis. Quisque ultricies sapien vitae euismod commodo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
 
+# Special chars
+short lines
+text block
+that says nothing
+
+
+
 # URL
 
 https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url

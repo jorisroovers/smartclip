@@ -1,7 +1,7 @@
 'use strict';
-import css from './css/styles.css';
+import css from './css/styles.scss';
 import './fonts/materialdesignicons-webfont.woff2';
-import './css/materialdesignicons.min.css';
+// import './css/materialdesignicons.min.css';
 
 import './fonts/fontawesome-webfont.woff2';
 import './css/font-awesome.min.css';
@@ -12,7 +12,6 @@ import { ipcRenderer } from "electron";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import SETTINGS from './config';
 import SettingsView from "./components/Settings"
 import TrayMenu from "./components/TrayMenu"
 import { ClipDetailView } from "./components/Clip"
@@ -20,12 +19,6 @@ import { ClipDetailView } from "./components/Clip"
 import { clipStore } from "./stores/ClipStore"
 
 ipcRenderer.send('init', true);
-
-ipcRenderer.on('init', function (event, settings) {
-    Object.assign(SETTINGS, settings); // use Object.assign instead of regular assignment, otherwise this won't work
-    console.log(settings);
-});
-
 
 class AppRouter extends React.Component {
 
